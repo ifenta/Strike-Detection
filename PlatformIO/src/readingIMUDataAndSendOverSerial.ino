@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_LSM9DS1.h>
