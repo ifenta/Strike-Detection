@@ -30,9 +30,10 @@ y9Label = ""
 
 ##Save a new file, uncomment the next one
 ##filename = 'positions.txt'
+#filename = '/Users/ifenta/Documents/GitHub/Strike-Detection/WebSocketServer/position.txt'
 
 ##Read Other Files
-filename = 'still_hand_vertical(16g_16gauss_2000dps).txt'
+filename = 'Data/vertical_punch_wpop(16g_16gauss_2000dps).txt'
 
 
 with open(filename,'r') as csvfile:

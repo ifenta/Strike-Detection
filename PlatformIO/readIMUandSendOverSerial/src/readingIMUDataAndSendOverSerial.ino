@@ -5,6 +5,10 @@
 #include <Adafruit_LSM9DS1.h>
 #include <Adafruit_Sensor.h>  // not used in this demo but required!
 
+#define LED_PIN 0
+#define IGNORE_TIME 30  //ms
+#define READ_TIME 5000 //ms
+
 // i2c
 Adafruit_LSM9DS1 lsm = Adafruit_LSM9DS1();
 
@@ -24,14 +28,14 @@ void setupSensor(){
 
 void setup() 
 {
-  pinMode(13, OUTPUT);
-  digitalWrite(13, LOW);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, HIGH);
   Serial.begin(115200);
 
   while (!Serial) {
     delay(1000); // will pause Zero, Leonardo, etc until serial console opens
   }
-  digitalWrite(13, HIGH);
+  digitalWrite(LED_PIN, LOW);
   
   Serial.println("LSM9DS1 data read demo");
   
@@ -57,7 +61,7 @@ void setup()
 
 void loop() 
 {
-  if((millis()-timer)<15000){
+  if((millis()-timer)<READ_TIME){
     lsm.read();  /* ask it to read in the data */ 
   
     /* Get a new sensor event */ 
@@ -65,7 +69,7 @@ void loop()
     lsm.getEvent(&a, &m, &g, &temp); 
 
     // Wait 30 millis to read to get rid of initialization data
-    if(millis()-timer>30){
+    if(millis()-timer>IGNORE_TIME){
       // Timestamp
       Serial.print(millis()-timer); Serial.print(";");
     
@@ -88,7 +92,7 @@ void loop()
     // Send complete to say we are done recording
     Serial.println("complete");
     // Turn off light and stop recording
-    digitalWrite(13, LOW);
+    digitalWrite(LED_PIN, HIGH);
     while(1){
       delay(1000);
     }

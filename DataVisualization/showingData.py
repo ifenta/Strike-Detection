@@ -29,7 +29,7 @@ y8Label = ""
 y9Label = ""
 
 ##Save a new file, uncomment the next one
-filename = 'positions.txt'
+filename = '/Users/ifenta/Documents/GitHub/Strike-Detection/WebSocketServer/position.txt'
 
 ##Read Other Files
 ##filename = 'twist_punch_wpop(16g_16gauss_2000dps).txt'
