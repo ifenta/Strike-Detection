@@ -64,42 +64,9 @@ with open(filename,'r') as csvfile:
             gyroX.append(float(row[7]))
             gyroY.append(float(row[8]))
             gyroZ.append(float(row[9]))
-'''
-avgCount=0
-accXAvg=0
-magYAvg=0
-for i in range(len(accX)):
-    accXAvg+=accX[i]
-    magYAvg+=magY[i]
-    avgCount+=1
-    ##check if reached sample size
-    if avgCount==5:
-        ##calculate averages
-        accXAvg/=avgCount
-        magYAvg/=avgCount
-        ##check peak in accX data
-        if accXAvg<-20:
-            ##check state of magY
-            magYSlope=(magY[i]-magY[i-avgCount])/(avgCount)
-            if magYAvg>0.7:
-                print("Vertical Punch at: "  + str(x[i]) + " ms")
-                print("Slope: " + str(magYSlope))
-            elif magYAvg<0.4:
-                print("Horizontal Punch at: "  + str(x[i]) + " ms")
-                print("Slope: " + str(magYSlope))
-            else:
-                print("Twist Punch at: "  + str(x[i]) + " ms")
-                print("Slope: " + str(magYSlope))
-        accXAvg=0
-        magYAvg=0
-        avgCount=0
-'''
 
 accXBuf=[]
 magYBuf=[]
-
-accXBufSum=0
-magYBufSum=0
 
 sampleSize=15
 
@@ -110,9 +77,6 @@ for i in range(len(x)):
     accXBuf.append(float(accX[i]))
     magYBuf.append(float(magY[i]))
     
-    accXBufSum+=accX[i]
-    magYBufSum+=magY[i]
-    
     if i<sampleSize-1:
         pass
     else:
@@ -120,8 +84,6 @@ for i in range(len(x)):
             ##print("Min found at: " + str(x[i-1]) + " ms with val: " + str(accX[i-1]))
             ##print(accXBuf)
             minFound=True
-        accXAvg=accXBufSum/sampleSize
-        magYAvg=magYBufSum/sampleSize
         ##We are in the spike zone and we found the min of the spike
         if minFound:
             magYSlope=(magY[i]-magY[i-sampleSize])/(sampleSize)
@@ -133,9 +95,6 @@ for i in range(len(x)):
             else:
                 print("Horizontal Punch")
             minFound=False
-
-        accXBufSum-=accX[i-sampleSize]
-        magYBufSum-=magY[i-sampleSize]
 
         accXBuf.pop(0)
         magYBuf.pop(0)

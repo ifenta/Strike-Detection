@@ -16,13 +16,13 @@ Adafruit_LSM9DS1 lsm = Adafruit_LSM9DS1();
 
 unsigned long timer;
 
-const char * ssid = "Love Shack";
-const char * password = "swagmuffin";
+const char * ssid = "********";
+const char * password = "********";
 
 AsyncUDP udp;
 
 // Check to make sure the IP address of the computer on the router is this
-IPAddress ip = IPAddress(192,168,0,109);
+IPAddress ip = IPAddress(192,168,0,108);
 int portNum = 9999;
 
 bool connected = false;
