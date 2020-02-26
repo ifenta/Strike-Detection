@@ -13,6 +13,7 @@ class read_csv():
 
     def read(self):
         with open(self.filename,'r') as csvfile:
+            # Seperate data in rows by semi-colon to array
             plots = csv.reader(csvfile, delimiter=';')
             count=0
             for row in plots:
@@ -27,6 +28,7 @@ class read_csv():
                         self.data.append([])
                     count+=1
                 
+                # Add data to array
                 else:
                     for i in range(self.amount_of_data_points):
                         if i==0:

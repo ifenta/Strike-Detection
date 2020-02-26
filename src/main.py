@@ -5,9 +5,9 @@ import udp_server
 
 filename = '/Users/ifenta/Documents/GitHub/Strike-Detection/src/position.txt'
 
-serv = udp_server.server(filename)
-serv.connection_initialization()
-serv.read_data()
+#serv = udp_server.server(filename)
+#serv.connection_initialization()
+#serv.read_data()
 
 read = read_csv.read_csv(filename, 10)
 read.read()

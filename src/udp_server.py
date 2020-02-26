@@ -32,9 +32,11 @@ class server():
         print("Recieving Data now")
 
     def read_data(self):
+        # Read data till complete signal
         while True:
             data, addr = self.sock.recvfrom(1024) # buffer size is 1024 bytes
             decode_data = data.decode("utf-8")
+            #checking to read complete
             if decode_data[0] == 'c':
                 break
             self.f.write(data.decode("utf-8"))

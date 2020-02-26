@@ -8,12 +8,17 @@ class plot():
         self.data = data
 
     def show_data(self):
+        # creating scatter plot for different, related data (accX, accY, accZ)
         self.axs[0].scatter(self.data[0],self.data[1], label=self.labels[1])
         self.axs[0].scatter(self.data[0],self.data[2], label=self.labels[2])
         self.axs[0].scatter(self.data[0],self.data[3], label=self.labels[3])
+        # Set x axis label
         self.axs[0].set_xlabel(self.labels[0])
+        # Set y axis label
         self.axs[0].set_ylabel("Accleration(m/s^2)")
+        # Set legend
         self.axs[0].legend()
+        # Add grid to graph
         self.axs[0].grid(True)
 
         self.axs[1].scatter(self.data[0],self.data[4], label=self.labels[4])
@@ -32,4 +37,5 @@ class plot():
         self.axs[2].legend()
         self.axs[2].grid(True)
 
+        # Show graph
         plt.show()
