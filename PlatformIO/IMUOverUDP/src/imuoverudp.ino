@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
-#include <ESP8266WiFi.h>
-#include "ESPAsyncUDP.h"
+#include <WiFi.h>
+#include "AsyncUDP.h"
 
 #include <Wire.h>
 #include <Adafruit_LSM9DS1.h>
@@ -102,35 +102,35 @@ void loop()
     digitalWrite(LED_PIN, LOW);
     while(1){
         if((millis()-timer)<READ_TIME){
-        lsm.read();  /* ask it to read in the data */ 
-      
-        /* Get a new sensor event */ 
-        sensors_event_t a, m, g, temp;
-        lsm.getEvent(&a, &m, &g, &temp); 
+          lsm.read();  /* ask it to read in the data */ 
+        
+          /* Get a new sensor event */ 
+          sensors_event_t a, m, g, temp;
+          lsm.getEvent(&a, &m, &g, &temp); 
 
-        // Wait 30 millis to read to get rid of initialization data
-        if(millis()-timer>IGNORE_TIME){
-            String message;
-            // Timestamp
-            message += String(millis()-timer) + ";";
-          
-            // Acceleration Data
-            message += String(a.acceleration.x) + ";";
-            message += String(a.acceleration.y) + ";";
-            message += String(a.acceleration.z) + ";";
-          
-            // Magnetometer Data
-            message += String(m.magnetic.x) + ";";
-            message += String(m.magnetic.y) + ";";
-            message += String(m.magnetic.z) + ";";
-          
-            // Gyroscope Data
-            message += String(g.gyro.x) + ";";
-            message += String(g.gyro.y) + ";";
-            message += String(g.gyro.x) + "\n";
+          // Wait 30 millis to read to get rid of initialization data
+          if(millis()-timer>IGNORE_TIME){
+              String message;
+              // Timestamp
+              message += String(millis()-timer) + ";";
+            
+              // Acceleration Data
+              message += String(a.acceleration.x) + ";";
+              message += String(a.acceleration.y) + ";";
+              message += String(a.acceleration.z) + ";";
+            
+              // Magnetometer Data
+              message += String(m.magnetic.x) + ";";
+              message += String(m.magnetic.y) + ";";
+              message += String(m.magnetic.z) + ";";
+            
+              // Gyroscope Data
+              message += String(g.gyro.x) + ";";
+              message += String(g.gyro.y) + ";";
+              message += String(g.gyro.x) + "\n";
 
-            // Send over UDP
-            udp.broadcastTo(message.c_str(), portNum);
+              // Send over UDP
+              udp.broadcastTo(message.c_str(), portNum);
         }
       }else{
         // Send complete to say we are done recording
