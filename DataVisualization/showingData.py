@@ -32,7 +32,7 @@ y9Label = ""
 filename = '/Users/ifenta/Documents/GitHub/Strike-Detection/WebSocketServer/input_stream_data.txt'
 
 ##Read Other Files
-##filename = 'twist_punch_wpop(16g_16gauss_2000dps).txt'
+#filename = '/Users/ifenta/Documents/GitHub/Strike-Detection/DataVisualization/Data/horizontal_punch_wpop(16g_16gauss_2000dps).txt'
 
 
 with open(filename,'r') as csvfile:
@@ -65,8 +65,8 @@ with open(filename,'r') as csvfile:
             gyroY.append(float(row[8]))
             gyroZ.append(float(row[9]))
 
-accXBuf=[]
-magYBuf=[]
+accYBuf=[]
+magXBuf=[]
 
 sampleSize=10
 
@@ -74,23 +74,25 @@ minFound=False
 
 for i in range(len(x)):
 
-    accXBuf.append(float(accX[i]))
-    magYBuf.append(float(magY[i]))
+    accYBuf.append(float(accY[i]))
+    magXBuf.append(float(magX[i]))
     
     if i<sampleSize-1:
         pass
     else:
-        if accX[i-1]<-30 and accX[i]>accX[i-1] and min(accXBuf)==accX[i-1]:
-            print("Min found at: " + str(x[i-1]) + " ms with val: " + str(accX[i-1]))
-            print(accXBuf)
+        if accY[i-1]>25 and accY[i]<accY[i-1] and max(accYBuf)==accY[i-1]:
+            print("Min found at: " + str(x[i-1]) + " ms with val: " + str(accY[i-1]))
+            print(accYBuf)
             minFound=True
         ##We are in the spike zone and we found the min of the spike
         if minFound:
-            magYSlope=(magY[i]-magY[i-sampleSize])/(sampleSize)
-            print("Time: " + str(x[i]) + " Slope: " + str(magYSlope))
-            if magYSlope<-0.02:
+            magXSlope=(magX[i]-magX[i-sampleSize-5])/(sampleSize-5)
+            magXAvg=(magX[i]+magX[i-sampleSize])/(2)
+            print("Time: " + str(x[i]) + " Slope: " + str(magXSlope) + " Avg: " + str(magXAvg) + " GyroY: " + str(gyroY[i-1]))
+            print(gyroY[i-sampleSize:i+1])
+            if magXSlope>0.01 and gyroY[i-2] > 1000:
                 print("Twist Punch")
-            elif magY[i]>0.5:
+            elif magXAvg < -0.1:
                 print("Vertical Punch")
             else:
                 print("Horizontal Punch")
@@ -98,38 +100,62 @@ for i in range(len(x)):
             print("\n\n")
             minFound=False
 
-        accXBuf.pop(0)
-        magYBuf.pop(0)
+        accYBuf.pop(0)
+        magXBuf.pop(0)
             
 
 
 ## Ploting All Data
-fig, axs = plt.subplots(2,1,sharex=True)
+fig, axs = plt.subplots(3,3,sharex=True)
 
-axs[0].scatter(x,accX, label=y1Label)
-#axs[0].scatter(x,accY, label=y2Label)
-#axs[0].scatter(x,accZ, label=y3Label)
-axs[0].set_xlabel(xLabel)
-axs[0].set_ylabel("Accleration(m/s^2)")
-axs[0].legend()
-axs[0].grid(True)
+axs[0][0].scatter(x,accX, label=y1Label)
+axs[0][0].set_xlabel(xLabel)
+axs[0][0].legend()
+axs[0][0].grid(True)
 
-#axs[1].scatter(x,magX, label=y4Label)
-axs[1].scatter(x,magY, label=y5Label)
-#axs[1].scatter(x,magZ, label=y6Label)
-axs[1].set_xlabel(xLabel)
-axs[1].set_ylabel("Magnetometer (gauss)")
-axs[1].legend()
-axs[1].grid(True)
+axs[0][1].scatter(x,accY, label=y2Label)
+axs[0][1].set_xlabel(xLabel)
+axs[0][1].legend()
+axs[0][1].grid(True)
 
-'''
-axs[2].scatter(x,gyroX, label=y7Label)
-axs[2].scatter(x,gyroY, label=y8Label)
-axs[2].scatter(x,gyroZ, label=y9Label)
-axs[2].set_xlabel(xLabel)
-axs[2].set_ylabel("Gyro (dps)")
-axs[2].legend()
-axs[2].grid(True)
-'''
+axs[0][2].scatter(x,accZ, label=y3Label)
+axs[0][2].set_xlabel(xLabel)
+axs[0][2].legend()
+axs[0][2].grid(True)
+
+
+
+
+axs[1][0].scatter(x,magX, label=y4Label)
+axs[1][0].set_xlabel(xLabel)
+axs[1][0].legend()
+axs[1][0].grid(True)
+
+axs[1][1].scatter(x,magY, label=y5Label)
+axs[1][1].set_xlabel(xLabel)
+axs[1][1].legend()
+axs[1][1].grid(True)
+
+axs[1][2].scatter(x,magZ, label=y6Label)
+axs[1][2].set_xlabel(xLabel)
+axs[1][2].legend()
+axs[1][2].grid(True)
+
+
+axs[2][0].scatter(x,gyroX, label=y7Label)
+axs[2][0].set_xlabel(xLabel)
+axs[2][0].legend()
+axs[2][0].grid(True)
+
+axs[2][1].scatter(x,gyroY, label=y8Label)
+axs[2][1].set_xlabel(xLabel)
+axs[2][1].legend()
+axs[2][1].grid(True)
+
+axs[2][2].scatter(x,gyroZ, label=y9Label)
+axs[2][2].set_xlabel(xLabel)
+axs[2][2].legend()
+axs[2][2].grid(True)
+
 plt.show()
 

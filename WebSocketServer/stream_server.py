@@ -6,6 +6,9 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
+run_visual = False
+#test_print_counter = -1
+
 class MainClass:
 
     def __init__(self, udp_ip = "", udp_port = 9999):
@@ -21,15 +24,17 @@ class MainClass:
         self.algorithm_thread = True
         
 
+        if(run_visual):
+            #self.fig, self.axs = plt.subplots(3,3,sharex=True)
+            self.fig, self.axs = plt.subplots(2,1,sharex=True)
 
-        #self.fig, self.axs = plt.subplots(3,3,sharex=True)
-        #self.fig, self.axs = plt.subplots(2,1,sharex=True)
 
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
         self.sock.bind((self.udp_ip, self.udp_port))
 
     def console_print(self, message):
+        global test_print_counter
         now = datetime.now()
 
         timestamp = datetime.timestamp(now)
@@ -37,6 +42,8 @@ class MainClass:
 
         print(str(dt_object) + "    " + message)
 
+        #print(str(test_print_counter) + "    " + message + "\n\n")
+        #test_print_counter+=1
 
     def initialize_udp(self):
         #self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
@@ -46,13 +53,10 @@ class MainClass:
 
     def initialize_visual(self):
 
-        #plt.ion()
         plt.style.use('fivethirtyeight')
         
-        #self.ani = FuncAnimation(plt.gcf(), self.animate, interval=1000)
         self.ani = FuncAnimation(self.fig, self.animate, interval=5)
         self.console_print("created FuncAnimation")
-        #plt.draw()
         plt.show()
         
         self.console_print("initialized")
@@ -79,16 +83,16 @@ class MainClass:
             self.axs[0].clear()
             if(latest_time>=10000):
                 self.axs[0].set_xlim(latest_time-10000,latest_time)
-            self.axs[0].plot(x,accX)
+            self.axs[0].plot(x,accY)
             self.axs[0].set_xlabel(xLabel)
-            self.axs[0].set_ylabel("AccX")
+            self.axs[0].set_ylabel("AccY")
 
             self.axs[1].clear()
             if(latest_time>=10000):
                 self.axs[1].set_xlim(latest_time-10000,latest_time)
-            self.axs[1].plot(x,magY)
+            self.axs[1].plot(x,magX)
             self.axs[1].set_xlabel(xLabel)
-            self.axs[1].set_ylabel("MagY")
+            self.axs[1].set_ylabel("MagX")
 
             '''
             self.axs[0][0].clear()
@@ -185,7 +189,7 @@ class MainClass:
             f.write(input_data)
         
         f.close()
-        pass
+        self.console_print("completed writing to csv")
 
     def parse_data(self, data):
         #parse incoming data to buffer
@@ -244,14 +248,15 @@ class MainClass:
             if (self.buffer_head < (sample_size)) or (buffer_tail+1 >= self.buffer_head):
                 pass
             else:
-                if ( (self.udp_buffer[1][buffer_tail-1]<-30) and 
-                (self.udp_buffer[1][buffer_tail] > self.udp_buffer[1][buffer_tail-1]) and 
-                (min(self.udp_buffer[1][buffer_tail-sample_size:buffer_tail]) == self.udp_buffer[1][buffer_tail-1]) ):
+                if ( (self.udp_buffer[2][buffer_tail-1]>25) and 
+                (self.udp_buffer[2][buffer_tail] < self.udp_buffer[2][buffer_tail-1]) and 
+                (max(self.udp_buffer[2][buffer_tail-sample_size:buffer_tail]) == self.udp_buffer[2][buffer_tail-1]) ):
 
-                    mag_y_slope = (self.udp_buffer[5][buffer_tail]-self.udp_buffer[5][buffer_tail-sample_size])/(sample_size)
-                    if mag_y_slope < -0.02:
+                    mag_x_slope = (self.udp_buffer[4][buffer_tail]-self.udp_buffer[4][buffer_tail-sample_size-5])/(sample_size-5)
+                    mag_x_avg = (self.udp_buffer[4][buffer_tail]+self.udp_buffer[4][buffer_tail-sample_size])/(2)
+                    if mag_x_slope > 0.01 and self.udp_buffer[8][buffer_tail-2] > 1000:
                         self.console_print("Twist Punch")
-                    elif self.udp_buffer[5][buffer_tail] > 0.5:
+                    elif mag_x_avg < -0.1:
                         self.console_print("Vertical Punch")
                     else: 
                         self.console_print("Horizontal Punch")
@@ -270,16 +275,18 @@ def main():
     algorithm_thread = threading.Thread(target=ud.algorithm_start)
     algorithm_thread.start()
     try:
-        #ud.initialize_visual()
-        while(True):
-            pass
+        if(run_visual):
+            ud.initialize_visual()
+        else:
+            while(True):
+                pass
     except KeyboardInterrupt:
-        ud.console_print("Keyboard intterupt")
+        ud.console_print("Keyboard intterupt")     
+    finally:
         ud.algorithm_thread = False
         ud.udp_thread = False
         plt.close()
         ud.write_to_csv()
-    finally:
         ud.console_print("Finished")
 
 main()
