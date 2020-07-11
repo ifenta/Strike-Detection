@@ -13,6 +13,7 @@
 Adafruit_LSM9DS1 lsm = Adafruit_LSM9DS1();
 
 unsigned long timer;
+unsigned long udp_timer;
 
 const char * ssid = "Love Shack";
 const char * password = "swagmuffin";
@@ -73,13 +74,18 @@ void setup(){
         udp.onPacket([](AsyncUDPPacket packet) {
             Serial.println("Ack Message Recieved");
             connected = true;
+            timer = millis();
+            udp_timer = millis();
         });
     }
 
     while(!connected){
       udp.broadcastTo("LH\n", portNum);
       Serial.println("Send message to server");
-      delay(1000);
+      digitalWrite(LED_PIN, LOW);
+      delay(500);
+      digitalWrite(LED_PIN, HIGH);
+      delay(500);
     }
     Serial.println("UDP Ack Recieved");
 
@@ -89,7 +95,8 @@ void loop(){
     Serial.println("Loop Begin");
 
     digitalWrite(LED_PIN, HIGH);
-    while(1){
+
+    while(true){
         
       lsm.read();  /* ask it to read in the data */ 
     
@@ -119,7 +126,20 @@ void loop(){
       // Send over UDP
       udp.broadcastTo(message.c_str(), portNum);
       //Serial.println("Sent " + message);
-        
-      delay(1);
+      
+      if(millis() - udp_timer > 5000){
+        //disconnected from server
+        connected = false; 
+        Serial.println("Disconnected from Server");
+      }
+      while(!connected){
+        udp.broadcastTo("LH\n", portNum);
+        Serial.println("Send message to server");
+        digitalWrite(LED_PIN, LOW);
+        delay(500);
+        digitalWrite(LED_PIN, HIGH);
+        delay(500);
+      }
+
   }  
 }

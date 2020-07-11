@@ -22,6 +22,9 @@ class MainClass:
 
         self.udp_thread = True
         self.algorithm_thread = True
+        self.is_alive_thread = True
+
+        self.addr = 0
         
 
         if(run_visual):
@@ -34,7 +37,7 @@ class MainClass:
         self.sock.bind((self.udp_ip, self.udp_port))
 
     def console_print(self, message):
-        global test_print_counter
+        #global test_print_counter
         now = datetime.now()
 
         timestamp = datetime.timestamp(now)
@@ -163,12 +166,12 @@ class MainClass:
 
     def connect_to_client(self):
         while True:
-            data, addr = self.sock.recvfrom(1024)
+            data, self.addr = self.sock.recvfrom(1024)
             #self.console_print("Got data from" + str(addr))
             decode_data = data.decode("utf-8")
             #self.console_print(str(decode_data))
             if decode_data[0] == 'L':
-                self.sock.sendto(data, addr)
+                self.sock.sendto(data, self.addr)
                 break
 
         self.console_print("Recieving Data now")
@@ -211,10 +214,7 @@ class MainClass:
                     self.buffer_head += 1
                     break
         else:
-            pass
-
-    def send_ack(self, addr):
-        self.sock.sendto('\n', addr)               
+            pass           
     
     def start(self):
         while not self.udp_initialized:
@@ -263,6 +263,13 @@ class MainClass:
                 
                 buffer_tail += 1
 
+    def is_alive(self):
+        while(self.is_alive_thread):
+            if(self.udp_initialized and self.addr != 0):
+                self.sock.sendto("hello".encode('utf-8'), self.addr)
+                sleep(3)
+            else:
+                pass
 
 
 def main():
@@ -274,6 +281,10 @@ def main():
     #start algolithm
     algorithm_thread = threading.Thread(target=ud.algorithm_start)
     algorithm_thread.start()
+
+    #send alive notice to esp32
+    alive_thread = threading.Thread(target=ud.is_alive)
+    alive_thread.start()
     try:
         if(run_visual):
             ud.initialize_visual()
@@ -285,6 +296,7 @@ def main():
     finally:
         ud.algorithm_thread = False
         ud.udp_thread = False
+        ud.is_alive_thread = False
         plt.close()
         ud.write_to_csv()
         ud.console_print("Finished")
