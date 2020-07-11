@@ -20,7 +20,7 @@ const char * password = "swagmuffin";
 AsyncUDP udp;
 
 // Check to make sure the IP address of the computer on the router is this
-IPAddress ip = IPAddress(192,168,0,105);
+IPAddress ip = IPAddress(192,168,0,103);
 int portNum = 9999;
 
 bool connected = false;
