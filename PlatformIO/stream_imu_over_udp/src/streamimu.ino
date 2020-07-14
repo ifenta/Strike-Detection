@@ -2,6 +2,7 @@
 
 #include <WiFi.h>
 #include "AsyncUDP.h"
+#include "AsyncTCP.h"
 
 #include <Wire.h>
 #include <Adafruit_LSM9DS1.h>
@@ -9,8 +10,14 @@
 
 #define LED_PIN 13
 
+#define UDP
+//#define TCP
+
 // i2c
 Adafruit_LSM9DS1 lsm = Adafruit_LSM9DS1();
+
+AsyncClient *aClient = new AsyncClient();
+
 
 unsigned long timer;
 unsigned long udp_timer;
@@ -69,12 +76,12 @@ void setup(){
     Serial.print("IP Address: ");
     Serial.println(WiFi.localIP());
 
+#ifdef UDP
     if(udp.connect(ip, portNum)) {
         Serial.println("UDP connected");
         udp.onPacket([](AsyncUDPPacket packet) {
             Serial.println("Ack Message Recieved");
             connected = true;
-            timer = millis();
             udp_timer = millis();
         });
     }
@@ -89,6 +96,36 @@ void setup(){
     }
     Serial.println("UDP Ack Recieved");
 
+#else //TCP
+    aClient->onError([](void * arg, AsyncClient * client, int error){
+      Serial.print("Connect Error ");
+      Serial.println(error);
+      client = new AsyncClient();
+      connected = false;
+    }, NULL);
+
+    aClient->onConnect([](void * arg, AsyncClient * client){
+        Serial.println("Connected");
+        aClient->onError(NULL, NULL);
+        connected = true;
+
+        client->onDisconnect([](void * arg, AsyncClient * c){
+          Serial.println("Disconnected");
+          c = new AsyncClient();
+          connected = false;
+        }, NULL);
+
+        client->onData([](void * arg, AsyncClient * c, void * data, size_t len){
+          Serial.print("\r\nData: ");
+          Serial.println(len);
+          uint8_t * d = (uint8_t*)data;
+          for(size_t i=0; i<len;i++)
+            Serial.write(d[i]);
+        }, NULL);
+    }, NULL);
+
+#endif
+
 }
 
 void loop(){
@@ -97,7 +134,16 @@ void loop(){
     digitalWrite(LED_PIN, HIGH);
 
     while(true){
-        
+#ifdef TCP
+      while(!connected){
+        if(!aClient->connecting()) aClient->connect(ip, portNum);
+        digitalWrite(LED_PIN, LOW);
+        delay(500);
+        digitalWrite(LED_PIN, HIGH);
+        delay(500);
+      }
+#endif
+
       lsm.read();  /* ask it to read in the data */ 
     
       /* Get a new sensor event */ 
@@ -123,10 +169,9 @@ void loop(){
       message += String(g.gyro.y) + ";";
       message += String(g.gyro.x) + "\n";
 
+#ifdef UDP
       // Send over UDP
       udp.broadcastTo(message.c_str(), portNum);
-      //Serial.println("Sent " + message);
-      
       if(millis() - udp_timer > 5000){
         //disconnected from server
         connected = false; 
@@ -140,6 +185,10 @@ void loop(){
         digitalWrite(LED_PIN, HIGH);
         delay(500);
       }
+#else //TCP
+      aClient->write(message.c_str(), message.length());
+      delay(1);
+#endif
 
   }  
 }
