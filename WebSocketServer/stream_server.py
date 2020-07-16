@@ -11,7 +11,7 @@ run_udp = True
 
 class MainClass:
 
-    def __init__(self, udp_ip = "", udp_port = 9999):
+    def __init__(self, udp_ip = "", udp_port = 9990):
         self.udp_ip = udp_ip
         self.udp_port = udp_port
         self.wifi_buffer = [[],[],[],[],[],[],[],[],[],[]]
@@ -110,7 +110,10 @@ class MainClass:
         self.buffer_head = 0
 
 ## Main WiFi Function ##
-    def start_wifi(self):
+    def start_wifi(self,port):
+
+        
+
         global run_udp
 
         self.initialize_wifi()
