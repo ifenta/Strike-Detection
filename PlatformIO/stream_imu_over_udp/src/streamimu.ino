@@ -18,6 +18,7 @@ Adafruit_LSM9DS1 lsm = Adafruit_LSM9DS1();
 
 AsyncClient *aClient = new AsyncClient();
 
+uint32_t data_counter = 0;
 
 unsigned long timer;
 unsigned long udp_timer;
@@ -164,7 +165,9 @@ void loop(){
 
           
           // Timestamp
-          message += String(millis()-timer) + ";";
+          //message += String(millis()-timer) + ";";
+          message += String(data_counter) + ";";
+
         
           // Acceleration Data
           message += String(a.acceleration.x) + ";";
@@ -186,6 +189,7 @@ void loop(){
       delay(1);
 #else //UDP
       udp.broadcastTo(message.c_str(), portNum);
+      data_counter++;
       if(millis() - udp_timer > 5000){
         //disconnected from server
         connected = false; 
