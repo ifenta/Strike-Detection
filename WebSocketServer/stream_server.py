@@ -25,9 +25,6 @@ class MainClass:
 
         self.wifi_thread = True
         self.algorithm_thread = True
-        self.is_alive_thread = True
-
-        self.addr = 0
         
 
         if(run_visual):
@@ -38,7 +35,7 @@ class MainClass:
 
 ### Logger w/ Timestamp ###
     def console_print(self, message):
-        #global test_print_counter
+        global test_print_counter
         now = datetime.now()
 
         timestamp = datetime.timestamp(now)
@@ -277,6 +274,69 @@ class MainClass:
 
             self.new_data = False
 
+<<<<<<< HEAD
+=======
+    def connect_to_client(self):
+        while True:
+            data, addr = self.sock.recvfrom(1024)
+            #self.console_print("Got data from" + str(addr))
+            decode_data = data.decode("utf-8")
+            #self.console_print(str(decode_data))
+            if decode_data[0] == 'L':
+                self.sock.sendto(data, addr)
+                break
+
+        self.console_print("Recieving Data now")
+
+    def write_to_csv(self):
+        f= open("input_stream_data.txt","w+")
+        
+        f.write("Time(ms);AccX(m/s^2);AccY(m/s^2);AccZ(m/s^2);MagX(gauss);MagY(gauss);MagZ(gauss);GyroX(dps);GyroY(dps);GyroZ(dps)\n")
+
+        #write data to csv
+        for i in range(len(self.udp_buffer[0])):
+            input_data = ""
+            for j in range(10):
+                input_data += str(self.udp_buffer[j][i])
+                if(j<9):
+                    input_data += ';'
+            input_data += '\n'
+            f.write(input_data)
+        
+        f.close()
+        self.console_print("completed writing to csv")
+
+    def parse_data(self, data):
+        #parse incoming data to buffer
+        #self.console_print("in parse_data")
+        data = data.decode('utf-8')
+        #self.console_print(data)
+        newline_index = data.find('\n')
+        data_count = 0
+        if(newline_index != -1):
+            while True:
+                semicolon_index = data.find(';')
+                if(semicolon_index != -1):
+                    self.udp_buffer[data_count].append(float(data[0:semicolon_index]))
+                    data = data[semicolon_index+1:]
+                    data_count += 1
+                else:
+                    self.udp_buffer[data_count].append(float(data[0:newline_index]))
+                    self.new_data = True
+                    self.buffer_head += 1
+                    break
+        else:
+            pass
+
+    def send_ack(self, addr):
+        self.sock.sendto('\n', addr)               
+    
+    def start(self):
+        while not self.udp_initialized:
+            pass
+
+        self.connect_to_client()
+>>>>>>> parent of 99e4547... Auto reconnect
 
 
 ### Algorithm Funciton ###
@@ -341,6 +401,7 @@ def main():
     algorithm_thread = threading.Thread(target=mc.algorithm_start)
     algorithm_thread.daemon = True
     algorithm_thread.start()
+<<<<<<< HEAD
 
     #send alive notice to esp32
     if(run_udp):
@@ -348,6 +409,8 @@ def main():
         alive_thread.daemon = True
         alive_thread.start()
 
+=======
+>>>>>>> parent of 99e4547... Auto reconnect
     try:
         if(run_visual):
             mc.initialize_visual()
@@ -357,11 +420,16 @@ def main():
     except KeyboardInterrupt:
         mc.console_print("Keyboard interrupt")     
     finally:
+<<<<<<< HEAD
         if(not run_udp):
             mc.conn.close()
         mc.algorithm_thread = False
         mc.wifi_thread = False
         mc.is_alive_thread = False
+=======
+        ud.algorithm_thread = False
+        ud.udp_thread = False
+>>>>>>> parent of 99e4547... Auto reconnect
         plt.close()
         mc.write_to_csv()
         mc.console_print("Finished")

@@ -20,7 +20,6 @@ AsyncClient *aClient = new AsyncClient();
 
 
 unsigned long timer;
-unsigned long udp_timer;
 
 const char * ssid = "Love Shack";
 const char * password = "swagmuffin";
@@ -82,6 +81,7 @@ void setup(){
         udp.onPacket([](AsyncUDPPacket packet) {
             Serial.println("Ack Message Recieved");
             connected = true;
+<<<<<<< HEAD
             udp_timer = millis();
         });
     }
@@ -125,10 +125,22 @@ void setup(){
     }, NULL);
 
 #endif
+=======
+        });
+    }
+
+    while(!connected){
+      udp.broadcastTo("LH\n", portNum);
+      Serial.println("Send message to server");
+      delay(1000);
+    }
+    Serial.println("UDP Ack Recieved");
+>>>>>>> parent of 99e4547... Auto reconnect
 
 }
 
 void loop(){
+<<<<<<< HEAD
 
     while(true){
 #ifdef UDP
@@ -150,6 +162,18 @@ void loop(){
         delay(500);
       }
 #endif
+=======
+    Serial.println("Loop Begin");
+
+    digitalWrite(LED_PIN, HIGH);
+    while(1){
+        
+      lsm.read();  /* ask it to read in the data */ 
+    
+      /* Get a new sensor event */ 
+      sensors_event_t a, m, g, temp;
+      lsm.getEvent(&a, &m, &g, &temp); 
+>>>>>>> parent of 99e4547... Auto reconnect
 
       String message;
 
@@ -186,6 +210,7 @@ void loop(){
       delay(1);
 #else //UDP
       udp.broadcastTo(message.c_str(), portNum);
+<<<<<<< HEAD
       if(millis() - udp_timer > 5000){
         //disconnected from server
         connected = false; 
@@ -193,5 +218,10 @@ void loop(){
       }
 #endif
 
+=======
+      //Serial.println("Sent " + message);
+        
+      delay(1);
+>>>>>>> parent of 99e4547... Auto reconnect
   }  
 }
