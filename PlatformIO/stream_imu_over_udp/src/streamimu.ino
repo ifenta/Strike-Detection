@@ -28,7 +28,7 @@ const char * password = "swagmuffin";
 AsyncUDP udp;
 
 // Check to make sure the IP address of the computer on the router is this
-IPAddress ip = IPAddress(192,168,0,103);
+IPAddress ip = IPAddress(192,168,0,106);
 int portNum = 9999;
 
 bool connected = false;
@@ -86,15 +86,15 @@ void setup(){
         });
     }
 
-    while(!connected){
-      udp.broadcastTo("LH\n", portNum);
-      Serial.println("Send message to server");
-      digitalWrite(LED_PIN, LOW);
-      delay(500);
-      digitalWrite(LED_PIN, HIGH);
-      delay(500);
-    }
-    Serial.println("UDP Ack Recieved");
+    // while(!connected){
+    //   udp.broadcastTo("LH", portNum);
+    //   Serial.println("Send message to server");
+    //   digitalWrite(LED_PIN, LOW);
+    //   delay(500);
+    //   digitalWrite(LED_PIN, HIGH);
+    //   delay(500);
+    // }
+    // Serial.println("UDP Ack Recieved");
 
 #else //TCP
     aClient->onError([](void * arg, AsyncClient * client, int error){
@@ -129,12 +129,19 @@ void setup(){
 }
 
 void loop(){
-    Serial.println("Loop Begin");
-
-    digitalWrite(LED_PIN, HIGH);
 
     while(true){
-#ifdef TCP
+#ifdef UDP
+      // Send over UDP
+      while(!connected){
+        udp.broadcastTo("LH", portNum);
+        Serial.println("Send message to server");
+        digitalWrite(LED_PIN, LOW);
+        delay(500);
+        digitalWrite(LED_PIN, HIGH);
+        delay(500);
+      }
+#else //TCP
       while(!connected){
         if(!aClient->connecting()) aClient->connect(ip, portNum);
         digitalWrite(LED_PIN, LOW);
@@ -144,50 +151,46 @@ void loop(){
       }
 #endif
 
-      lsm.read();  /* ask it to read in the data */ 
-    
-      /* Get a new sensor event */ 
-      sensors_event_t a, m, g, temp;
-      lsm.getEvent(&a, &m, &g, &temp); 
-
       String message;
-      // Timestamp
-      message += String(millis()-timer) + ";";
-    
-      // Acceleration Data
-      message += String(a.acceleration.x) + ";";
-      message += String(a.acceleration.y) + ";";
-      message += String(a.acceleration.z) + ";";
-    
-      // Magnetometer Data
-      message += String(m.magnetic.x) + ";";
-      message += String(m.magnetic.y) + ";";
-      message += String(m.magnetic.z) + ";";
-    
-      // Gyroscope Data
-      message += String(g.gyro.x) + ";";
-      message += String(g.gyro.y) + ";";
-      message += String(g.gyro.x) + "\n";
 
-#ifdef UDP
-      // Send over UDP
+#ifdef TCP
+      for(int i=0; i<100; i++){
+#endif
+          lsm.read();  /* ask it to read in the data */ 
+        
+          /* Get a new sensor event */ 
+          sensors_event_t a, m, g, temp;
+          lsm.getEvent(&a, &m, &g, &temp); 
+
+          
+          // Timestamp
+          message += String(millis()-timer) + ";";
+        
+          // Acceleration Data
+          message += String(a.acceleration.x) + ";";
+          message += String(a.acceleration.y) + ";";
+          message += String(a.acceleration.z) + ";";
+        
+          // Magnetometer Data
+          message += String(m.magnetic.x) + ";";
+          message += String(m.magnetic.y) + ";";
+          message += String(m.magnetic.z) + ";";
+        
+          // Gyroscope Data
+          message += String(g.gyro.x) + ";";
+          message += String(g.gyro.y) + ";";
+          message += String(g.gyro.x) + "\n";
+#ifdef TCP
+      }
+      aClient->write(message.c_str(), message.length());
+      delay(1);
+#else //UDP
       udp.broadcastTo(message.c_str(), portNum);
       if(millis() - udp_timer > 5000){
         //disconnected from server
         connected = false; 
         Serial.println("Disconnected from Server");
       }
-      while(!connected){
-        udp.broadcastTo("LH\n", portNum);
-        Serial.println("Send message to server");
-        digitalWrite(LED_PIN, LOW);
-        delay(500);
-        digitalWrite(LED_PIN, HIGH);
-        delay(500);
-      }
-#else //TCP
-      aClient->write(message.c_str(), message.length());
-      delay(1);
 #endif
 
   }  

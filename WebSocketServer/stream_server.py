@@ -15,8 +15,11 @@ class MainClass:
         self.udp_ip = udp_ip
         self.udp_port = udp_port
         self.wifi_buffer = [[],[],[],[],[],[],[],[],[],[]]
+        self.data_types = ['Time', 'Accx', 'Accy', 'Accz', 'Magx', 'Magy', 'Magz', 'Gyrox', 'Gyroy', 'Gyroz']
         self.new_data = False
+        self.new_incoming_data = False
         self.wifi_initialized = False
+        self.wifi_connected = False
 
         self.buffer_head = 0
 
@@ -52,20 +55,31 @@ class MainClass:
         data = data.decode('utf-8')
         newline_index = data.find('\n')
         data_count = 0
-        if(newline_index != -1):
+        #print(data)
+        while(newline_index != -1):
             while True:
                 semicolon_index = data.find(';')
-                if(semicolon_index != -1):
+                newline_index = data.find('\n')
+                #print("semicolon index: " + str(semicolon_index))
+                #print("newline index: " + str(newline_index))
+                if(semicolon_index != -1 and semicolon_index<newline_index):
+                    #print(self.data_types[data_count] + str(data[0:semicolon_index]))
                     self.wifi_buffer[data_count].append(float(data[0:semicolon_index]))
                     data = data[semicolon_index+1:]
                     data_count += 1
                 else:
+                    #print(self.data_types[data_count] + str(data[0:newline_index]))
                     self.wifi_buffer[data_count].append(float(data[0:newline_index]))
+                    data = data[newline_index+1:]
                     self.new_data = True
                     self.buffer_head += 1
+                    #print("Break")
                     break
-        else:
-            pass   
+
+            
+            newline_index = data.find('\n')
+            data_count = 0
+ 
 
 ## Start socket and bindings ##
     def initialize_wifi(self):
@@ -87,8 +101,13 @@ class MainClass:
             if decode_data[0] == 'L':
                 self.sock.sendto(data, self.addr)
                 break
+            sleep(1)
 
         self.console_print("Recieving Data now")
+        self.wifi_connected = True
+        for x in range(len(self.wifi_buffer)):
+            self.wifi_buffer[x] = []
+            
 
 ## Main WiFi Function ##
     def start_wifi(self):
@@ -101,13 +120,12 @@ class MainClass:
 
             try:
                 while self.wifi_thread:
-                    data, addr = self.sock.recvfrom(1024) # buffer size is 1024 bytes
-                    #self.console_print("recieved data")
-                    self.parse_data(data)
-
-                    #plot data
-
-                    #self.send_ack(addr)
+                    if(self.wifi_connected):
+                        data, addr = self.sock.recvfrom(1024) # buffer size is 1024 bytes
+                        self.new_incoming_data=True
+                        self.parse_data(data)
+                    else:
+                        pass
             except KeyboardInterrupt:
                 self.console_print("Keyboard Interrupt")
 
@@ -117,25 +135,31 @@ class MainClass:
                 print("binding to " + str(self.udp_ip) + ", " + str(self.udp_port))
                 s.bind((self.udp_ip, self.udp_port))
                 print("Listening")
-                s.listen()
-                conn, addr = s.accept()
-                with conn:
+                s.listen(5)
+                self.conn, addr = s.accept()
+                with self.conn:
                     self.console_print("Connected by " + str(addr))
                     while self.wifi_thread:
-                        data = conn.recv(1024)
+                        data = self.conn.recv(10240)
                         if not data:
                             break
+                        #print(data.decode('utf-8'))
                         self.parse_data(data)
-
 
 ## Send alive ping to client (used for UDP) ##
     def is_alive(self):
         while(self.is_alive_thread):
             if(self.wifi_initialized and self.addr != 0):
+                if(self.new_incoming_data):
+                    self.new_incoming_data = False
+                else: 
+                    self.console_print("Lost Connection")
+                    self.wifi_connected = False
+                    self.connect_to_client()
                 self.sock.sendto("hello".encode('utf-8'), self.addr)
-                sleep(3)
-            else:
-                pass
+                #self.console_print("Sent alive connection to client")
+
+            sleep(3)
 
 
 
@@ -178,7 +202,7 @@ class MainClass:
             self.axs[0].plot(x,accY)
             self.axs[0].set_xlabel(xLabel)
             self.axs[0].set_ylabel("AccY")
-
+            
             self.axs[1].clear()
             if(latest_time>=10000):
                 self.axs[1].set_xlim(latest_time-10000,latest_time)
@@ -310,15 +334,18 @@ def main():
     mc = MainClass()
 
     wifi_thread = threading.Thread(target=mc.start_wifi)
+    wifi_thread.daemon = True
     wifi_thread.start()
 
     #start algolithm
     algorithm_thread = threading.Thread(target=mc.algorithm_start)
+    algorithm_thread.daemon = True
     algorithm_thread.start()
 
     #send alive notice to esp32
     if(run_udp):
         alive_thread = threading.Thread(target=mc.is_alive)
+        alive_thread.daemon = True
         alive_thread.start()
 
     try:
@@ -330,6 +357,8 @@ def main():
     except KeyboardInterrupt:
         mc.console_print("Keyboard interrupt")     
     finally:
+        if(not run_udp):
+            mc.conn.close()
         mc.algorithm_thread = False
         mc.wifi_thread = False
         mc.is_alive_thread = False
