@@ -107,7 +107,7 @@ class MainClass:
         self.wifi_connected = True
         for x in range(len(self.wifi_buffer)):
             self.wifi_buffer[x] = []
-            
+        self.buffer_head = 0
 
 ## Main WiFi Function ##
     def start_wifi(self):
@@ -284,26 +284,29 @@ class MainClass:
         #analyze data in buffer
         self.console_print("Starting algorithm")
         sample_size = 15
-        buffer_tail = sample_size
+        self.buffer_tail = sample_size
 
         while self.algorithm_thread:
-            if (self.buffer_head < (sample_size)) or (buffer_tail+1 >= self.buffer_head):
-                pass
-            else:
-                if ( (self.wifi_buffer[2][buffer_tail-1]>25) and 
-                (self.wifi_buffer[2][buffer_tail] < self.wifi_buffer[2][buffer_tail-1]) and 
-                (max(self.wifi_buffer[2][buffer_tail-sample_size:buffer_tail]) == self.wifi_buffer[2][buffer_tail-1]) ):
+            if(self.wifi_connected):
+                if (self.buffer_head < (sample_size)) or (self.buffer_tail+1 >= self.buffer_head):
+                    pass
+                else:
+                    if ( (self.wifi_buffer[2][self.buffer_tail-1]>25) and 
+                    (self.wifi_buffer[2][self.buffer_tail] < self.wifi_buffer[2][self.buffer_tail-1]) and 
+                    (max(self.wifi_buffer[2][self.buffer_tail-sample_size:self.buffer_tail]) == self.wifi_buffer[2][self.buffer_tail-1]) ):
 
-                    mag_x_slope = (self.wifi_buffer[4][buffer_tail]-self.wifi_buffer[4][buffer_tail-sample_size-5])/(sample_size-5)
-                    mag_x_avg = (self.wifi_buffer[4][buffer_tail]+self.wifi_buffer[4][buffer_tail-sample_size])/(2)
-                    if mag_x_slope > 0.01 and self.wifi_buffer[8][buffer_tail-2] > 1000:
-                        self.console_print("Twist Punch")
-                    elif mag_x_avg < -0.1:
-                        self.console_print("Vertical Punch")
-                    else: 
-                        self.console_print("Horizontal Punch")
-                
-                buffer_tail += 1
+                        mag_x_slope = (self.wifi_buffer[4][self.buffer_tail]-self.wifi_buffer[4][self.buffer_tail-sample_size-5])/(sample_size-5)
+                        mag_x_avg = (self.wifi_buffer[4][self.buffer_tail]+self.wifi_buffer[4][self.buffer_tail-sample_size])/(2)
+                        if mag_x_slope > 0.01 and self.wifi_buffer[8][self.buffer_tail-2] > 1000:
+                            self.console_print("Twist Punch")
+                        elif mag_x_avg < -0.1:
+                            self.console_print("Vertical Punch")
+                        else: 
+                            self.console_print("Horizontal Punch")
+                    
+                    self.buffer_tail += 1
+            else:
+                self.buffer_tail = sample_size
 
 
 
