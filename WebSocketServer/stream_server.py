@@ -6,12 +6,13 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-run_visual = True
+run_visual = False
 run_udp = True
+devices = 2
 
 class MainClass:
 
-    def __init__(self, udp_ip = "", udp_port = 9990):
+    def __init__(self, udp_ip = "", udp_port = 9999):
         self.udp_ip = udp_ip
         self.udp_port = udp_port
         self.wifi_buffer = [[],[],[],[],[],[],[],[],[],[]]
@@ -80,7 +81,6 @@ class MainClass:
             newline_index = data.find('\n')
             data_count = 0
  
-
 ## Start socket and bindings ##
     def initialize_wifi(self):
         global run_udp
@@ -111,8 +111,6 @@ class MainClass:
 
 ## Main WiFi Function ##
     def start_wifi(self,port):
-
-        
 
         global run_udp
 
@@ -336,8 +334,9 @@ class MainClass:
 ### Main Function ###
 def main():
     global run_udp
+    global devices
 
-    mc = MainClass()
+    mc = [ MainClass(udp_port=(9990+x)) for x in range(len(devices)) ]
 
     wifi_thread = threading.Thread(target=mc.start_wifi)
     wifi_thread.daemon = True

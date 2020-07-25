@@ -1,19 +1,20 @@
-import plot_data
-import read_csv
-import strike_algorithm
-import udp_server
+import threading
+from strike_detector import StrikeDetector
 
-filename = '/Users/ifenta/Documents/GitHub/Strike-Detection/src/position.txt'
+devices = 4
 
-#serv = udp_server.server(filename)
-#serv.connection_initialization()
-#serv.read_data()
+if(__name__ == "__main__"):
+    sd = [StrikeDetector(x) for x in range(devices)]
 
-read = read_csv.read_csv(filename, 10)
-read.read()
+    try:
+        for x in range(devices):
+            sd[x].run()
 
-strike = strike_algorithm.strike_alg(read.data[0], read.data[1], read.data[5])
-print(strike.determine_strikes())
-
-plot = plot_data.plot(read.labels,read.data)
-plot.show_data()
+        while(True):
+            pass
+    except KeyboardInterrupt:
+        print("Main - Keyboard Interrupt")
+    finally:
+        for x in range(devices):
+            sd[x].close_threads()
+        print("Finished main program")
