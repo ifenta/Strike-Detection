@@ -6,9 +6,8 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-run_visual = False
+run_visual = True
 run_udp = True
-devices = 2
 
 class MainClass:
 
@@ -334,9 +333,8 @@ class MainClass:
 ### Main Function ###
 def main():
     global run_udp
-    global devices
 
-    mc = [ MainClass(udp_port=(9990+x)) for x in range(len(devices)) ]
+    mc = MainClass()
 
     wifi_thread = threading.Thread(target=mc.start_wifi)
     wifi_thread.daemon = True
