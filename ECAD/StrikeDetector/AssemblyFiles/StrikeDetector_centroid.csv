@@ -1,0 +1,47 @@
+Screaming Circuits SMD component position file.
+Created by Centroid_ScreamingCircuits_smd.ulp 1.2.0.
+
+Centroid Data for pc board: "StrikeDetector.brd" as of: 9/20/20 1:10 AM
+Measurements are in inches. Comma delimited
+Only surface mount components included
+
+RefDes,Layer,LocationX,LocationY,Rotation
+C1,Top,0.448,0.800,270
+C2,Top,0.511,0.800,270
+C3,Top,0.637,0.665,270
+C4,Top,0.574,0.664,270
+C5,Top,0.448,0.665,270
+C6,Top,0.511,0.663,270
+C7,Top,0.233,0.839,180
+C8,Top,0.122,0.307,270
+D1,Top,0.327,0.522,180
+D2,Top,0.329,0.447,180
+J1,Top,0.472,0.061,0
+LED1,Top,0.103,0.081,180
+LED2,Top,0.152,0.519,90
+R1,Top,0.048,1.560,90
+R2,Top,0.049,1.425,90
+R3,Top,0.527,0.565,180
+R4,Top,0.569,0.345,270
+R5,Top,0.234,0.774,0
+R6,Top,0.585,0.835,270
+R7,Top,0.648,0.837,270
+R8,Top,0.352,0.319,90
+R9,Top,0.159,0.455,0
+R10,Top,0.038,0.074,270
+R11,Top,0.055,1.728,90
+R12,Top,0.287,1.000,90
+R13,Top,0.224,1.000,90
+R14,Top,0.350,1.000,90
+R15,Top,0.634,0.945,0
+R16,Top,0.634,1.008,0
+S1,Top,0.095,0.678,270
+SW1,Top,0.118,0.984,90
+SW2,Top,0.815,0.984,90
+U$1,Top,0.231,0.317,270
+U1,Top,0.504,0.472,0
+U2,Top,0.467,0.343,180
+U3,Top,0.472,0.945,180
+U4,Top,0.476,1.622,0
+U5,Top,0.714,0.427,90
+U6,Top,0.333,0.663,0
