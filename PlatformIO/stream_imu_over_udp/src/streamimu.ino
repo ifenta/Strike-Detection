@@ -23,13 +23,13 @@ uint32_t data_counter = 0;
 unsigned long timer;
 unsigned long udp_timer;
 
-const char * ssid = "Love Shack";
-const char * password = "swagmuffin";
+const char * ssid = "";
+const char * password = "";
 
 AsyncUDP udp;
 
 // Check to make sure the IP address of the computer on the router is this
-IPAddress ip = IPAddress(192,168,0,110);
+IPAddress ip = IPAddress(192,168,0,192);
 int portNum = 9994;
 
 bool connected = false;

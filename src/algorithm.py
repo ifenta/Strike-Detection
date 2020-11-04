@@ -9,7 +9,7 @@ class Algorithm():
     def algorithm_start(self):
         #analyze data in buffer
         console_print("Starting algorithm", self.shared_data.device)
-        sample_size = 15
+        sample_size = 20
         buffer_tail = sample_size
 
         while self.shared_data.algorithm_thread:

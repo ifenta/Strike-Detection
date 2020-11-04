@@ -33,15 +33,15 @@ y9Label = ""
 #filename = '/Users/ifenta/Documents/GitHub/Strike-Detection/WebSocketServer/position.txt'
 
 ##Read Other Files
-filename = 'Data/vertical_punch_wpop(16g_16gauss_2000dps).txt'
-
+#filename = 'Data/vertical_punch_wpop(16g_16gauss_2000dps).txt'
+filename = "/Users/ifenta/Documents/GitHub/Strike-Detection/src/input_stream_data_device_0.txt"
 
 with open(filename,'r') as csvfile:
     plots = csv.reader(csvfile, delimiter=';')
     count=0
     for row in plots:
-        if row[0] == "complete":
-            break
+        #if row[0] == "complete":
+        #    break
         if count==0:
             xLabel+=row[0]
             y1Label+=row[1]
@@ -55,7 +55,7 @@ with open(filename,'r') as csvfile:
             y9Label+=row[9]
             count+=1
         else:
-            x.append(int(row[0]))
+            x.append(float(row[0]))
             accX.append(float(row[1]))
             accY.append(float(row[2]))
             accZ.append(float(row[3]))

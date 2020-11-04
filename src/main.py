@@ -1,7 +1,7 @@
 import threading
 from strike_detector import StrikeDetector
 
-devices = 4
+devices = 1
 
 if(__name__ == "__main__"):
     sd = [StrikeDetector(x) for x in range(devices)]
