@@ -11,10 +11,11 @@ if(__name__ == "__main__"):
             sd[x].run()
 
         while(True):
-            pass
+            sd[0].main_ml_storing()
     except KeyboardInterrupt:
         print("Main - Keyboard Interrupt")
     finally:
+        sd[0].store_ml_data()
         for x in range(devices):
             sd[x].close_threads()
         print("Finished main program")

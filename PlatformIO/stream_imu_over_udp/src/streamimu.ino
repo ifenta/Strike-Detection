@@ -30,7 +30,7 @@ AsyncUDP udp;
 
 // Check to make sure the IP address of the computer on the router is this
 IPAddress ip = IPAddress(192,168,0,192);
-int portNum = 9994;
+int portNum = 9991;
 
 bool connected = false;
 
@@ -86,16 +86,6 @@ void setup(){
             udp_timer = millis();
         });
     }
-
-    // while(!connected){
-    //   udp.broadcastTo("LH", portNum);
-    //   Serial.println("Send message to server");
-    //   digitalWrite(LED_PIN, LOW);
-    //   delay(500);
-    //   digitalWrite(LED_PIN, HIGH);
-    //   delay(500);
-    // }
-    // Serial.println("UDP Ack Recieved");
 
 #else //TCP
     aClient->onError([](void * arg, AsyncClient * client, int error){
@@ -165,8 +155,8 @@ void loop(){
 
           
           // Timestamp
-          //message += String(millis()-timer) + ";";
-          message += String(data_counter) + ";";
+          message += String(millis()-timer) + ";";
+          //message += String(data_counter) + ";";
 
         
           // Acceleration Data

@@ -85,7 +85,8 @@ class UDP():
                 if(self.shared_data.wifi_connected):
                     data, addr = self.sock.recvfrom(1024) # buffer size is 1024 bytes
                     self.new_incoming_data=True
-                    self.parse_data(data)
+                    if(self.shared_data.read_data):
+                        self.parse_data(data)
                 else:
                     pass
         except KeyboardInterrupt:

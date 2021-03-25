@@ -9,6 +9,11 @@ class SharedData():
         self.wifi_thread = True
         self.is_alive_thread = True
 
+        self.read_data = False
+        self.strike_data = []
+        self.strike_labels = []
+        self.strike_list = ['horizontal punch', 'vertical punch', 'twist punch']
+
     def close_threads(self):
         self.algorithm_thread = False
         self.wifi_thread = False
