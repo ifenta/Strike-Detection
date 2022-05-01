@@ -12,7 +12,7 @@ class SharedData():
         self.read_data = False
         self.strike_data = []
         self.strike_labels = []
-        self.strike_list = ['horizontal punch', 'vertical punch', 'twist punch']
+        self.strike_list = ['jab', 'upper', 'hook']
 
     def close_threads(self):
         self.algorithm_thread = False

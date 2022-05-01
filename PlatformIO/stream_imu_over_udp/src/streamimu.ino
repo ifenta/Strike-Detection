@@ -172,7 +172,7 @@ void loop(){
           // Gyroscope Data
           message += String(g.gyro.x) + ";";
           message += String(g.gyro.y) + ";";
-          message += String(g.gyro.x) + "\n";
+          message += String(g.gyro.z) + "\n";
 #ifdef TCP
       }
       aClient->write(message.c_str(), message.length());

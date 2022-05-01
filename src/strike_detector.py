@@ -7,6 +7,8 @@ from algorithm import Algorithm
 from shared_data import SharedData
 from functions import write_to_csv,console_print, end_start
 
+from plot import PlotData
+
 class StrikeDetector():
 
     def __init__(self, device):
@@ -15,6 +17,9 @@ class StrikeDetector():
         self.shared = SharedData(self.device)
         self.wifi = UDP(self.shared, udp_port=port)
         self.alg = Algorithm(self.shared)
+
+        self.punch_count = 0
+        self.plot_data = PlotData(self.shared)
 
     def run(self):
         #start udp thread
@@ -43,26 +48,33 @@ class StrikeDetector():
         selected_strike = self.shared.strike_list[strike_index]
         info = print("SELECTED STRIKE -    " + selected_strike)
         input("PRESS ENTER WHEN READY")
-        print('3')
+        print('3\r')
         sleep(1)
-        print('2')
+        print('2\r')
         sleep(1)
-        print('1')
+        print('1\r')
         sleep(1)
-        print('GO')
+        print('GO\r')
         self.shared.read_data = True
         sleep(1)
         self.shared.read_data = False
+
+        #self.plot_data.plot()
+
         while True:
             info = input("WOULD YOU LIKE TO REDO READING? (Y or N)")
-            if info == 'Y':
+            if info == 'N':
                 print("STORING DATA")
                 self.shared.strike_data.append(self.shared.wifi_buffer)
                 self.shared.strike_labels.append(selected_strike)
                 self.shared.wifi_buffer = [[],[],[],[],[],[],[],[],[],[]]
+                self.punch_count += 1
+
+                print("PUNCH COUNT    " + str(self.punch_count))
                 break
-            elif info == 'N':
+            elif info == 'Y':
                 print("NOT STORING")
+                self.shared.wifi_buffer = [[],[],[],[],[],[],[],[],[],[]]
                 break
             else:
                 print("INPUT Y OR N")
